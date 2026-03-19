@@ -1,6 +1,6 @@
 <template>
 <div>
-<h1>Página Sobre</h1>
+<h1>Página Sobre-</h1>
 <p>Conteúdo da página sobre.</p>
 </div>
 </template>
