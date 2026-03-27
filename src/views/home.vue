@@ -10,10 +10,10 @@
       </div>
       <div>
         <div>
-          <img src="../assets/user-icon.png" alt="User">
+          <img src="../assets/conta.png" alt="User" id="conta">
           <span>acesse sua conta</span>
         </div>
-        <img src="../assets/bell.png" alt="Notificações">
+        
       </div>
     </nav>
 
@@ -40,7 +40,7 @@
 
       <section class="card">
         <div class="card-header">
-          <img src="../assets/2.png" alt="ícone" class="card-icon">
+          <img src="../assets/mov.png" alt="ícone" class="card-icon">
           <h2>Controle Movimentações</h2>
         </div>
         <p>Registre quais EPIs foram retirados, devolvidos ou estão vencidos.</p>
@@ -48,13 +48,35 @@
 
       <section class="card">
         <div class="card-header">
-          <img src="../assets/3.png" alt="ícone" class="card-icon">
+          <img src="../assets/rel.png" alt="ícone" class="card-icon">
           <h2>Análise Relatórios</h2>
         </div>
         <p>Visualize dados de distribuição, uso e vencimento dos EPIs.</p>
       </section>
     </div>
+    <footer >
+      <div class="footer-content">
+        <div class="footer-brand">
+          <img src="../assets/logo.png" alt="Logo" class="footer-logo">
+          <p>&copy; 2026 Controle de EPIs.</p>
+        </div>
+        
+        <div class="links">
+          <h3>Navegação</h3>
+          <ul>
+            <li><a href="#">Início</a></li>
+            <li><a href="#">Estoque</a></li>
+            <li><a href="#">Relatórios</a></li>
+          </ul>
+        </div>
 
+        <div class="contato">
+          <h3>Suporte</h3>
+          <p>suporte@gestaoepi.com.br</p>
+          <p>(11) 4002-8922</p>
+        </div>
+      </div>
+    </footer>
 
   </div>
 </template>
@@ -156,6 +178,125 @@ name: 'home'
 }
 main{
     margin-left: 50px;
+}
+footer {
+  background-color: #111827; /* Mesma cor da Navbar */
+  color: #9ca3af; /* Cinza claro para o texto */
+  padding: 60px 50px 30px;
+  margin-top: 80px;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.footer-brand p {
+  margin-top: 15px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.footer-logo {
+  height: 40px;
+  filter: brightness(0) invert(1); /* Deixa o logo branco se ele for escuro */
+}
+
+.links h3, .contato h3 {
+  color: white;
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.links ul {
+  list-style: none;
+  padding: 0;
+}
+
+.links li {
+  margin-bottom: 10px;
+}
+
+.links a {
+  color: #9ca3af;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.links a:hover {
+  color: white;
+}
+
+.footer-contact p {
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+#conta{
+  width: 32px;
+  height: 32px;
+  margin-right: 15px;
+}
+.logo{
+    width: 50px;
+  height: 50px;
+}
+  
+
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .footer {
+    padding: 40px 20px;
+  }
+
+  .navbar {
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .input {
+    width: 95%; 
+  }
+
+  .principal {
+    flex-direction: column-reverse; 
+    text-align: center;
+  }
+
+  .text h1 {
+    font-size: 28px; 
+  }
+
+  .text br {
+    display: none; 
+  }
+
+  #img {
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .container-cards {
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .card-header {
+    justify-content: center;
+    margin-bottom: 10px;
+  }
 }
 
 </style>
