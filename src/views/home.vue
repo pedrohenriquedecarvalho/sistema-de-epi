@@ -90,6 +90,7 @@ name: 'home'
 <style>
 *{
     margin: 0;
+    padding: 0;
 }
 .page{
   font-family: 'Inter', sans-serif;
