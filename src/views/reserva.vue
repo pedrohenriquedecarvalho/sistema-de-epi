@@ -1,91 +1,108 @@
 <template>
   <div class="page">
+
+    <!-- NAVBAR -->
     <nav class="navbar">
-      <div>
-        <img src="../assets/logo.png" alt="Logo" class="logo">
+
+      <div class="nav-left">
+        <img src="../assets/image.png" alt="Logo" class="logo">
         <span>Controle de EPIs</span>
       </div>
-      <div>
+
+      <div class="nav-center">
         <input type="text" placeholder="Pesquisar..." class="input">
       </div>
-      <div>
-        <div>
-          <img src="../assets/conta.png" alt="User" id="conta">
-          <span>acesse sua conta</span>
-        </div>
-        
+
+       <div class="nav-right">
+        <img src="../assets/conta.png" alt="User" class="conta">
+        <RouterLink to="/login" class="conta1">Acesse sua conta</RouterLink>
       </div>
     </nav>
-          
 
-      <section class="cadastro">
-        <div class="card">
-           <h1>Cadastro de EPI's</h1>
-            <p class="subtitle">Preencha as informações para adicionar um novo equipamento no estoque</p>
+    <!-- FORMULÁRIO -->
+    <section class="cadastro">
+      <div class="card">
 
-          <form  class="form-grid">
-            <div class="column">
+        <h1>Cadastro de EPI's</h1>
+        <p class="subtitle">
+          Preencha as informações para adicionar um novo equipamento no estoque
+        </p>
 
-              <div class="geral">
-                <label>Nome do Funcionário</label>
-                <input type="text" placeholder="Ex:João">
-              </div>
+        <form class="form-grid">
 
-              <div class="geral">
-                <label>Cargo do Funcionário</label>
-                <input type="text" placeholder="Categoria">
-              </div>
+          <!-- COLUNA ESQUERDA -->
+          <div class="column">
 
-              
-
-                <div class="geral">
-                  <label>Número dos EPI's</label>
-                  <input type="text" placeholder="Ex: 1234">
-                </div>
-
-                <div class="geral">
-                  <label>Categoria</label>
-                  <input type="text" placeholder="Proteção da cabeça">
-                </div>
-
-                <div class="geral">
-                  <label>Quantidade</label>
-                  <input type="number" placeholder="02">
-                </div>
-
-                <div class="form-actions">
-                  <button type="button" class="cancel">Cancelar</button>
-                  <button type="submit" class="save">Salvar EPI</button>
-                </div>
-                <div class="img">
-                    <img src="../assets/hero.png" alt="reserva" class="reserva">
-                </div>
-                
-                
-            
+            <div class="geral">
+              <label>Nome do Funcionário</label>
+              <input type="text" placeholder="Ex: João">
             </div>
 
-          </form>
-        </div>
-      </section>
-    
+            <div class="geral">
+              <label>Cargo do Funcionário</label>
+              <input type="text" placeholder="Categoria">
+            </div>
+
+            <div class="geral">
+              <label>Número dos EPI's</label>
+              <input type="text" placeholder="Ex: 1234">
+            </div>
+
+            <div class="geral">
+              <label>Categoria</label>
+              <input type="text" placeholder="Proteção da cabeça">
+            </div>
+
+            <div class="geral">
+              <label>Quantidade</label>
+              <input type="number" placeholder="02">
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="cancel">Cancelar</button>
+              <button type="submit" class="save">Salvar EPI</button>
+            </div>
+
+          </div>
+
+          <!-- COLUNA DIREITA -->
+          <div class="column image-column">
+            <img src="../assets/reserva.png" alt="reserva" class="reserva">
+          </div>
+
+        </form>
+      </div>
+    </section>
+
   </div>
 </template>
 
+<script>
+export default {
+  name: 'reserva'
+}
+</script>
+
 <style>
-/* --- Geral e Reset --- */
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
 .page {
   font-family: 'Inter', sans-serif;
-  background-color: #d1d5db; 
+  background-color: #d1d5db;
   min-height: 100vh;
 }
+.conta1{
+  text-decoration: none;
+  color: white;
+  white-space: nowrap;
+  margin-left: 10px;
+}
 
-
-
+/* NAVBAR */
 .navbar {
   background-color: #111827;
   color: white;
@@ -95,16 +112,38 @@
   padding: 15px 50px;
 }
 
+.nav-left,
+.nav-center,
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-center {
+  flex: 1;
+  justify-content: center;
+}
+
+.logo {
+  width: 40px;
+}
+
+.conta {
+  width: 28px;
+}
+
 .input {
-  width: 500px;
+  width: 400px;
+  max-width: 100%;
   padding: 10px;
   border-radius: 6px;
   border: none;
   background-color: #374151;
- 
+  color: white;
 }
 
-/* --- Seção de Cadastro --- */
+/* FORM */
 .cadastro {
   display: flex;
   justify-content: center;
@@ -114,76 +153,76 @@
 
 .card {
   background-color: white;
-  width: 1000px;
+  width: 100%;
+  max-width: 1000px;
   border-radius: 12px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  box-shadow: 0 10px 15px rgba(0,0,0,0.1);
 }
 
 .card h1 {
   text-align: center;
-  font-size: 32px;
-  color: #000;
+  font-size: 28px;
   margin-bottom: 10px;
 }
 
 .subtitle {
   text-align: center;
   color: #6b7280;
-  margin-bottom: 40px;
-  font-size: 16px;
+  margin-bottom: 30px;
 }
 
-.divider {
-  border:  1PX solid rgba(0, 0, 0, 0.192);
+/* GRID */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
 }
 
-/* --- Campos de Input --- */
+.column {
+  display: flex;
+  flex-direction: column;
+}
+
+/* INPUTS */
 .geral {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   display: flex;
   flex-direction: column;
 }
 
 .geral label {
-  font-weight: bold;
-  margin-bottom: 8px;
+  font-weight: 600;
+  margin-bottom: 5px;
   color: #374151;
-  font-size: 14px;
 }
 
 input {
-  padding: 12px;
+  padding: 10px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
-  font-size: 14px;
 }
 
-.inputs {
-  display: flex;
-  gap: 20px;
-}
-
-/* --- Ações do Formulário --- */
+/* BOTÕES */
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 15px;
-  margin-top: 30px;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .cancel {
   background: white;
   border: 1px solid #d1d5db;
-  padding: 10px 25px;
+  padding: 10px 20px;
   border-radius: 8px;
-  color: #374151;
   cursor: pointer;
 }
 
 .save {
   background-color: #2563eb;
   border: none;
-  padding: 10px 25px;
+  padding: 10px 20px;
   border-radius: 8px;
   color: white;
   cursor: pointer;
@@ -192,36 +231,41 @@ input {
 .save:hover {
   background-color: #1d4ed8;
 }
-.img{
 
-}
-.reserva{
-    max-width: 300px;
+/* IMAGEM */
+.image-column {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* --- Responsividade --- */
+.reserva {
+width: 400px;
+height: 350px;
+border-radius: 10px;
+box-shadow: 0 10px 15px rgba(0, 0, 0, 0.411);
+margin-top: 20px;
+  
+}
+
+/* RESPONSIVO */
 @media (max-width: 768px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .divider {
-    display: none;
-  }
-  
   .navbar {
     flex-direction: column;
     gap: 15px;
   }
-  
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .image-column {
+    order: -1;
+    margin-bottom: 20px;
+  }
+
   .input {
     width: 100%;
   }
 }
 </style>
-
-<script>
-export default {
-name: 'reserva'
-}
-</script>
