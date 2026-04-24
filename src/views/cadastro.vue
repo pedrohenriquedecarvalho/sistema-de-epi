@@ -3,10 +3,6 @@
 
     <!-- NAVBAR -->
     <nav class="navbar">
-      <div class="nav-left">
-        <img src="../assets/image.png" class="logo">
-        <span>Controle de EPIs</span>
-      </div>
 
       <div class="nav-center">
         <input type="text" placeholder="Pesquisar..." class="input">
@@ -27,40 +23,30 @@
           Preencha as informações para adicionar um novo equipamento no estoque
         </p>
 
-        <form class="form-grid">
+        <form class="form-grid" @submit.prevent="salvar">
 
           <!-- ESQUERDA -->
           <div class="coluna">
 
             <div class="geral">
               <label>Nome do EPI</label>
-              <input type="text" placeholder="Ex: Capacete de Segurança">
+              <input v-model="form.nome_epi" type="text" placeholder="Ex: Capacete de Segurança">
             </div>
 
             <div class="geral">
               <label>Categoria</label>
-              <input type="text" placeholder="Ex: Proteção da cabeça">
+              <input v-model="form.categoria" type="text" placeholder="Ex: Proteção da cabeça">
             </div>
 
             <div class="inputs">
               <div class="geral">
                 <label>Número do CA</label>
-                <input type="text" placeholder="Ex: 1234">
+                <input v-model="form.ca" type="text" placeholder="Ex: 1234">
               </div>
 
               <div class="geral">
                 <label>Validade</label>
-                <input type="date">
-              </div>
-            </div>
-
-            <div class="upload-area">
-              <label>Imagem do EPI</label>
-
-              <div class="upload-box">
-                <img src="../assets/upload-icon.png">
-                <p>nenhum arquivo selecionado</p>
-                <button type="button">Selecione o arquivo</button>
+                <input v-model="form.validade" type="date">
               </div>
             </div>
 
@@ -74,17 +60,17 @@
 
             <div class="geral">
               <label>Quantidade Inicial</label>
-              <input type="number" placeholder="Ex: 100">
+              <input v-model="form.quantidade"  type="number" placeholder="Ex: 100">
             </div>
 
             <div class="geral">
               <label>Fornecedor</label>
-              <input type="text" placeholder="Ex: Nome do Fornecedor">
+              <input v-model="form.fornecedor" type="text" placeholder="Ex: Nome do Fornecedor">
             </div>
 
             <div class="geral">
               <label>Localização no Estoque</label>
-              <input type="text" placeholder="Ex: Prateleira A3">
+              <input v-model="form.localizacao" type="text" placeholder="Ex: Prateleira A3">
             </div>
 
             <div class="form-actions">
@@ -101,11 +87,85 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'cadastro-epi'
-}
+
+<script setup>
+import { ref, reactive, onMounted } from 'vue';
+import { useSupabase } from '../composables/useSupabase'; 
+
+const { supabase } = useSupabase();
+
+const epis = ref([]);
+const editandoId = ref(null);
+
+const form = reactive({ 
+  nome_epi: '', 
+  categoria: '', 
+  ca: '', 
+  validade: '', 
+  quantidade: '', 
+  fornecedor: '', 
+  localizacao: '' 
+});
+
+const carregar = async () => {
+  const { data, error } = await supabase.from('cadastro_epi').select('*').order('nome_epi');
+  if (error) console.error("Erro ao carregar:", error);
+  epis.value = data || [];
+};
+
+const salvar = async () => {
+  // --- PASSO 1: Preparar os dados ---
+  // Convertemos quantidade e CA para número, pois inputs de texto enviam strings
+  // Isso evita o erro 400 por tipo de dado incorreto
+  const dadosParaSalvar = {
+    nome_epi: form.nome_epi,
+    categoria: form.categoria,
+    ca: parseInt(form.ca) || 0, // Converte para número
+    validade: form.validade,
+    quantidade: parseInt(form.quantidade) || 0, // Converte para número
+    fornecedor: form.fornecedor,
+    localizacao: form.localizacao
+  };
+
+  try {
+    let error;
+    if (editandoId.value) {
+      // Atualizar
+      const response = await supabase.from('cadastro_epi').update(dadosParaSalvar).eq('id', editandoId.value);
+      error = response.error;
+    } else {
+      // Inserir
+      const response = await supabase.from('cadastro_epi').insert([dadosParaSalvar]);
+      error = response.error;
+    }
+    
+    if (error) throw error; 
+
+    alert('Salvo com sucesso!');
+    cancelarEdicao();
+    carregar();
+  } catch (error) {
+    console.error('Erro detalhado do Supabase:', error);
+    alert('Erro ao salvar: ' + (error.message || 'Verifique o console'));
+  }
+};
+
+const prepararEdicao = (e) => {
+  editandoId.value = e.id;
+  Object.assign(form, { ...e });
+};
+
+const cancelarEdicao = () => {
+  editandoId.value = null;
+  Object.assign(form, { 
+    nome_epi: '', categoria: '', ca: '', validade: '', 
+    quantidade: '', fornecedor: '', localizacao: '' 
+  });
+};
+
+onMounted(carregar);
 </script>
+
 
 <style>
 * {
@@ -234,39 +294,6 @@ input {
 
 .inputs .geral {
   flex: 1;
-}
-
-/* UPLOAD */
-.upload-box {
-  width: 100%;
-  border: 2px dashed #e5e7eb;
-  padding: 30px;
-  text-align: center;
-  border-radius: 10px;
-  margin-top: 10px;
-  background-color: #f3f4f6;
-  cursor: pointer;
-}
-
-.upload-box img {
-  width: 40px;
-  opacity: 0.6;
-}
-
-.upload-box p {
-  font-size: 13px;
-  color: #6b7280;
-  margin-top: 10px;
-}
-
-.upload-box button {
-  margin-top: 10px;
-  padding: 8px 15px;
-  border: none;
-  background-color: #e5e7eb;
-  color: #374151;
-  border-radius: 6px;
-  cursor: pointer;
 }
 
 /* BOTÕES */

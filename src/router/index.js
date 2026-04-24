@@ -5,17 +5,25 @@ import cadastro from '../views/cadastro.vue'
 import relatorio from '../views/relatorio.vue'
 import reserva from '../views/reserva.vue'
 import estoque from '../views/estoque.vue'
-import dashbord from '../views/dashboard.vue'
+import dashboard from '../views/dashboard.vue'
 
 const routes = [
 { path: '/', component: home },
 { path: '/login', component: login },
+
+ {
+    path: '/dashboard',
+    component: dashboard,
+    meta: { requiresAuth: true },
+    children: [
 { path: '/cadastro', component: cadastro },
 { path: '/relatorio', component: relatorio },
 { path: '/reserva', component: reserva },
 { path: '/estoque', component: estoque },
-{ path: '/dashboard', component: dashbord },
 ]
+}
+]
+
 const router = createRouter({
 history: createWebHistory(),
 routes

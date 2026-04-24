@@ -10,65 +10,70 @@
       <nav aria-label="Menu principal">
         <ul class="navbar__lista">
           <li><RouterLink to="/" class="navbar__link">Home</RouterLink></li>
-          <li><RouterLink to="/cadastro" class="navbar__link">Cadastro</RouterLink></li>
+          <li><RouterLink to="/cadastro" class="navbar__link">Cadastro de EPI</RouterLink></li>
           <li><RouterLink to="/estoque" class="navbar__link">Estoque</RouterLink></li>
           <li><RouterLink to="/login" class="navbar__link">Login</RouterLink></li>
-          <li><RouterLink to="/relatorios" class="navbar__link">Relatórios</RouterLink></li>
+          <li><RouterLink to="/relatorio" class="navbar__link">Relatório</RouterLink></li>
           <li><RouterLink to="/reserva" class="navbar__link">Reserva</RouterLink></li>
           
           <li class="item-sair">
-            <button @click="logout" class="btn-sair">Sair</button>
+            <button @click="sair" class="btn-sair">Sair</button>
           </li>
         </ul>
       </nav>
     </aside> 
-
+    <!-- ===== CONTEÚDO CENTRAL ===== -->
+    <!-- Aqui é onde as páginas aparecem (Dashboard, Funcionários, etc.) -->
     <main class="conteudo">
-      <header class="header-tabela">
-        <h1>Funcionários</h1>
-        <button class="btn-novo">+ Novo Funcionário</button>
-      </header>
-
-      <div class="card-tabela">
-        <table>
-          <thead>
-            <tr>
-              <th>MATRÍCULA</th>
-              <th>NOME</th>
-              <th>SETOR</th>
-              <th>CARGO</th>
-              <th>AÇÕES</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>MAT001</td>
-              <td>Ana Souza</td>
-              <td>Produção</td>
-              <td>Operadora</td>
-              <td><button class="btn-excluir">Excluir</button></td>
-            </tr>
-            <tr>
-              <td>MAT002</td>
-              <td>Carlos Lima</td>
-              <td>Almoxarifado</td>
-              <td>Auxiliar</td>
-              <td><button class="btn-excluir">Excluir</button></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <!-- RouterView: espaço vazio onde o Vue coloca o componente da rota atual -->
+      <!-- Cada rota filha (children) aparece aqui automaticamente -->
+      <RouterView />
     </main>
   </div> 
 </template>
 
 <script setup>
-const logout = () => {
-  console.log("Saindo...");
-};
+import { useSupabase } from '../composables/useSupabase'
+import { useRouter } from 'vue-router'
+import { RouterLink, RouterView } from 'vue-router'
+const { supabase } = useSupabase()
+const router = useRouter()
+
+async function sair() {
+  // try = tenta executar o código dentro
+  // Se houver um erro, vai para o catch
+  try {
+    // ===== PASSO 1: DESCONECTAR DO SUPABASE =====
+    // supabase.auth.signOut() = função do Supabase que desconecta o usuário
+    // Isso remove a sessão do usuário do navegador
+    // await = espera a operação terminar antes de continuar
+    await supabase.auth.signOut()
+    // Depois de desconectar, o usuário não está mais autenticado
+    // Se tentar acessar uma página protegida, será redirecionado para login
+
+    // ===== PASSO 2: REDIRECIONAR PARA A PÁGINA DE LOGIN =====
+    // router.push('/login') = navega para a página /login
+    // Isso leva o usuário de volta para a tela de login
+    // A navegação acontece sem recarregar a página (SPA)
+    router.push('/login')
+    // Agora o usuário está na página de login e pode fazer login novamente
+  }
+ catch (err) {
+    // Se houver um erro ao fazer logout, mostrar no console
+    // Isso ajuda o desenvolvedor a entender o que deu errado
+    console.error('Erro ao fazer logout:', err)
+    // Nota: mesmo com erro, o usuário pode estar desconectado
+    // Mas é bom avisar o desenvolvedor sobre o problema
+  }
+}
+
 </script>
 
 <style scoped> 
+*{
+  margin: 0;
+  padding: 0;
+}
 /* Layout Base */
 .layout { 
   display: flex;
@@ -79,7 +84,7 @@ const logout = () => {
 
 .sidebar { 
   width: 250px;
-  background: #1e1e2d; 
+  background-color: #111827;
   color: white; 
   padding: 20px;
   display: flex;
@@ -138,12 +143,9 @@ img{
   background: #ff4d4d;
   color: white;
 }
-
-/* Área da Direita (Tabela) */
 .conteudo {
-  flex: 1; 
-  padding: 40px; 
-} 
+  width: 100%;
+}
 
 .header-tabela {
   display: flex;

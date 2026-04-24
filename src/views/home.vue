@@ -3,11 +3,6 @@
     
     <!-- NAVBAR -->
     <nav class="navbar">
-      
-      <div class="nav-left">
-        <img src="../assets/image.png" alt="Logo" class="logo">
-        <span>Controle de EPIs</span>
-      </div>
 
       <div class="nav-center">
         <input type="text" placeholder="Pesquisar..." class="input">

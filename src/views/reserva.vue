@@ -4,11 +4,6 @@
     <!-- NAVBAR -->
     <nav class="navbar">
 
-      <div class="nav-left">
-        <img src="../assets/image.png" alt="Logo" class="logo">
-        <span>Controle de EPIs</span>
-      </div>
-
       <div class="nav-center">
         <input type="text" placeholder="Pesquisar..." class="input">
       </div>
@@ -23,39 +18,39 @@
     <section class="cadastro">
       <div class="card">
 
-        <h1>Cadastro de EPI's</h1>
+        <h1>Reserva de EPI's</h1>
         <p class="subtitle">
           Preencha as informações para adicionar um novo equipamento no estoque
         </p>
 
-        <form class="form-grid">
+        <form class="form-grid" @submit.prevent="salvar">
 
           <!-- COLUNA ESQUERDA -->
           <div class="column">
 
             <div class="geral">
               <label>Nome do Funcionário</label>
-              <input type="text" placeholder="Ex: João">
+             <input v-model="form.nome" type="text" placeholder="Ex: João">
             </div>
 
             <div class="geral">
               <label>Cargo do Funcionário</label>
-              <input type="text" placeholder="Categoria">
+              <input v-model="form.cargo" type="text" placeholder="Categoria">
             </div>
 
             <div class="geral">
-              <label>Número dos EPI's</label>
-              <input type="text" placeholder="Ex: 1234">
+              <label>CA dos EPI's</label>
+              <input v-model="form.ca" type="text" placeholder="Ex: 1234">
             </div>
 
             <div class="geral">
               <label>Categoria</label>
-              <input type="text" placeholder="Proteção da cabeça">
+              <input v-model="form.categoria" type="text" placeholder="Proteção da cabeça">
             </div>
 
             <div class="geral">
               <label>Quantidade</label>
-              <input type="number" placeholder="02">
+              <input v-model="form.quantidade" type="number" placeholder="02">
             </div>
 
             <div class="form-actions">
@@ -77,17 +72,89 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'reserva'
-}
+<script setup>
+import { ref, reactive, onMounted } from 'vue';
+import { useSupabase } from '../composables/useSupabase'; 
+
+const { supabase } = useSupabase();
+
+const epis = ref([]);
+const editandoId = ref(null);
+
+const form = reactive({ 
+  nome: '', 
+  cargo: '', 
+  ca: '', 
+  categoria: '', 
+  quantidade: ''
+});
+
+const carregar = async () => {
+  const { data, error } = await supabase.from('reserva_epi').select('*').order('nome');
+  if (error) console.error("Erro ao carregar:", error);
+  epis.value = data || [];
+};
+
+const salvar = async () => {
+  // --- PASSO 1: Preparar os dados ---
+  // Convertemos quantidade e CA para número, pois inputs de texto enviam strings
+  // Isso evita o erro 400 por tipo de dado incorreto
+  const dadosParaSalvar = {
+    nome: form.nome,
+    cargo: form.cargo,
+    ca: parseInt(form.ca) || 0, // Converte para número
+    categoria: form.categoria,
+    quantidade: parseInt(form.quantidade) || 0 // Converte para número
+  };
+
+  try {
+    let error;
+    if (editandoId.value) {
+      // Atualizar
+      const response = await supabase.from('reserva_epi').update(dadosParaSalvar).eq('id', editandoId.value);
+      error = response.error;
+    } else {
+      // Inserir
+      const response = await supabase.from('reserva_epi').insert([dadosParaSalvar]);
+      error = response.error;
+    }
+    
+    if (error) throw error; 
+
+    alert('Salvo com sucesso!');
+    cancelarEdicao();
+    carregar();
+  } catch (error) {
+    console.error('Erro detalhado do Supabase:', error);
+    alert('Erro ao salvar: ' + (error.message || 'Verifique o console'));
+  }
+};
+
+const prepararEdicao = (e) => {
+  editandoId.value = e.id;
+  Object.assign(form, { ...e });
+};
+
+const cancelarEdicao = () => {
+  editandoId.value = null;
+  Object.assign(form, { 
+    nome: '', cargo: '', ca: '', categoria: '', 
+    quantidade: '' 
+  });
+};
+
+onMounted(carregar);
 </script>
 
 <style>
-* {
+template{
   margin: 0;
   padding: 0;
+}
+* {
+ 
   box-sizing: border-box;
+  
 }
 
 .page {
@@ -158,7 +225,9 @@ export default {
   border-radius: 12px;
   padding: 40px;
   box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+   
 }
+
 
 .card h1 {
   text-align: center;
