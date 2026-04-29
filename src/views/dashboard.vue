@@ -9,10 +9,9 @@
 
       <nav aria-label="Menu principal">
         <ul class="navbar__lista">
-          <li><RouterLink to="/" class="navbar__link">Home</RouterLink></li>
+          <li><RouterLink to="/funcionarios" class="navbar__link">Funcionários</RouterLink></li>
           <li><RouterLink to="/cadastro" class="navbar__link">Cadastro de EPI</RouterLink></li>
           <li><RouterLink to="/estoque" class="navbar__link">Estoque</RouterLink></li>
-          <li><RouterLink to="/login" class="navbar__link">Login</RouterLink></li>
           <li><RouterLink to="/relatorio" class="navbar__link">Relatório</RouterLink></li>
           <li><RouterLink to="/reserva" class="navbar__link">Reserva</RouterLink></li>
           

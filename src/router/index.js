@@ -6,6 +6,7 @@ import relatorio from '../views/relatorio.vue'
 import reserva from '../views/reserva.vue'
 import estoque from '../views/estoque.vue'
 import dashboard from '../views/dashboard.vue'
+import funcionario from '../views/funcionarios.vue'
 
 const routes = [
 { path: '/', component: home },
@@ -20,6 +21,7 @@ const routes = [
 { path: '/relatorio', component: relatorio },
 { path: '/reserva', component: reserva },
 { path: '/estoque', component: estoque },
+{ path: '/funcionarios', component: funcionario },
 ]
 }
 ]
