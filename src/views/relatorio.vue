@@ -1,20 +1,6 @@
 <template>
   <div class="page">
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
-
-
-      <div class="nav-center">
-        <input type="text" placeholder="Pesquisar..." class="input">
-      </div>
-
-      <div class="nav-right">
-        <img src="../assets/conta.png" alt="User" class="conta">
-        <RouterLink to="/login" class="conta1">Acesse sua conta</RouterLink>
-      </div>
-    </nav>
-
     <!-- RELATÓRIO -->
     <section class="relatorio">
       <div class="card">

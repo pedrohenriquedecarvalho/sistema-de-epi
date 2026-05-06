@@ -52,7 +52,7 @@ async function fazerLogin() {
       password: senha.value,
     })
     if (error) throw error
-    router.push('/dashboard')
+    router.push('/estoque')
   } catch (err) {
     erro.value = 'Credenciais inválidas ou erro de conexão.'
   } finally {

@@ -1,19 +1,6 @@
 <template>
   <div class="page">
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
-
-      <div class="nav-center">
-        <input type="text" placeholder="Pesquisar..." class="input">
-      </div>
-
-       <div class="nav-right">
-        <img src="../assets/conta.png" alt="User" class="conta">
-        <RouterLink to="/login" class="conta1">Acesse sua conta</RouterLink>
-      </div>
-    </nav>
-
     <!-- FORMULÁRIO -->
     <section class="cadastro">
       <div class="card">
@@ -169,46 +156,6 @@ template{
   margin-left: 10px;
 }
 
-/* NAVBAR */
-.navbar {
-  background-color: #111827;
-  color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 50px;
-}
-
-.nav-left,
-.nav-center,
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.nav-center {
-  flex: 1;
-  justify-content: center;
-}
-
-.logo {
-  width: 40px;
-}
-
-.conta {
-  width: 28px;
-}
-
-.input {
-  width: 400px;
-  max-width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  border: none;
-  background-color: #374151;
-  color: white;
-}
 
 /* FORM */
 .cadastro {

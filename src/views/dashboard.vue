@@ -1,199 +1,157 @@
 <template> 
   <div class="layout"> 
+    <!-- SIDEBAR FIXA ESQUERDA -->
     <aside class="sidebar">
       <div class="sidebar__logo">
-        <img src="../assets/image.png" class="icon">
-        
+        <img src="../assets/image.png" class="icon" alt="Logo">
         <h2>Controle EPI</h2>
       </div>
 
-      <nav aria-label="Menu principal">
+      <nav aria-label="Menu principal" class="sidebar__nav">
         <ul class="navbar__lista">
           <li><RouterLink to="/funcionarios" class="navbar__link">Funcionários</RouterLink></li>
           <li><RouterLink to="/cadastro" class="navbar__link">Cadastro de EPI</RouterLink></li>
           <li><RouterLink to="/estoque" class="navbar__link">Estoque</RouterLink></li>
           <li><RouterLink to="/relatorio" class="navbar__link">Relatório</RouterLink></li>
           <li><RouterLink to="/reserva" class="navbar__link">Reserva</RouterLink></li>
-          
-          <li class="item-sair">
-            <button @click="sair" class="btn-sair">Sair</button>
-          </li>
         </ul>
+        
+        <div class="item-sair">
+          <button @click="sair" class="btn-sair">Sair</button>
+        </div>
       </nav>
     </aside> 
-    <!-- ===== CONTEÚDO CENTRAL ===== -->
-    <!-- Aqui é onde as páginas aparecem (Dashboard, Funcionários, etc.) -->
-    <main class="conteudo">
-      <!-- RouterView: espaço vazio onde o Vue coloca o componente da rota atual -->
-      <!-- Cada rota filha (children) aparece aqui automaticamente -->
-      <RouterView />
-    </main>
+
+    <!-- CONTEÚDO DA DIREITA (NAVBAR + PÁGINAS) -->
+    <div class="main-wrapper">
+      <!-- NAVBAR SUPERIOR -->
+     <nav class="navbar">
+      <div class="nav-center">
+        <input type="text" placeholder="Pesquisar..." class="input">
+      </div>
+      <div class="nav-right">
+        <img src="../assets/conta.png" alt="User" class="conta">
+        <RouterLink to="/login" class="conta1">Acesse sua conta</RouterLink>
+      </div>
+    </nav>
+
+      <!-- CONTEÚDO DINÂMICO (PÁGINAS) -->
+      <main class="conteudo-scroll">
+        <RouterView />
+      </main>
+    </div>
   </div> 
 </template>
 
 <script setup>
 import { useSupabase } from '../composables/useSupabase'
-import { useRouter } from 'vue-router'
-import { RouterLink, RouterView } from 'vue-router'
+import { useRouter, RouterLink, RouterView } from 'vue-router'
+
 const { supabase } = useSupabase()
 const router = useRouter()
 
 async function sair() {
-  // try = tenta executar o código dentro
-  // Se houver um erro, vai para o catch
   try {
-    // ===== PASSO 1: DESCONECTAR DO SUPABASE =====
-    // supabase.auth.signOut() = função do Supabase que desconecta o usuário
-    // Isso remove a sessão do usuário do navegador
-    // await = espera a operação terminar antes de continuar
     await supabase.auth.signOut()
-    // Depois de desconectar, o usuário não está mais autenticado
-    // Se tentar acessar uma página protegida, será redirecionado para login
-
-    // ===== PASSO 2: REDIRECIONAR PARA A PÁGINA DE LOGIN =====
-    // router.push('/login') = navega para a página /login
-    // Isso leva o usuário de volta para a tela de login
-    // A navegação acontece sem recarregar a página (SPA)
     router.push('/login')
-    // Agora o usuário está na página de login e pode fazer login novamente
-  }
- catch (err) {
-    // Se houver um erro ao fazer logout, mostrar no console
-    // Isso ajuda o desenvolvedor a entender o que deu errado
+  } catch (err) {
     console.error('Erro ao fazer logout:', err)
-    // Nota: mesmo com erro, o usuário pode estar desconectado
-    // Mas é bom avisar o desenvolvedor sobre o problema
   }
 }
-
 </script>
 
-<style scoped> 
-*{
-  margin: 0;
-  padding: 0;
-}
-/* Layout Base */
+<style scoped>
+
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+.navbar { background-color: #111827; color: white; display: flex; align-items: center; padding: 15px 50px; }
+.nav-center { flex: 1; display: flex; justify-content: center; }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.input { width: 400px; padding: 10px; border-radius: 6px; border: none; background-color: #374151; color: white; }
+.conta { width: 28px; }
+.conta1 { text-decoration: none; color: white; margin-left: 10px; font-size: 14px; }
 .layout { 
   display: flex;
+  width: 100vw;
   height: 100vh; 
-  background-color: #f4f7f6; 
+  background-color: #f3f4f6; 
+  overflow: hidden;
 } 
 
-
+/* SIDEBAR */
 .sidebar { 
-  width: 250px;
+  width: 260px;
   background-color: #111827;
   color: white; 
-  padding: 20px;
+  padding: 25px;
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
 } 
 
 .sidebar__logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 30px;
-  
+  gap: 12px;
+  margin-bottom: 40px;
 }
 
-img{
-  height: 30px;
-  width: 30px;
-}
+.icon { height: 32px; width: 32px; }
 
-.navbar__lista {
-  list-style: none; 
-  padding: 0;
-  margin: 0;
-}
+.sidebar__nav { display: flex; flex-direction: column; flex: 1; }
+
+.navbar__lista { list-style: none; flex: 1; }
 
 .navbar__link {
   display: block; 
-  color: #adb5bd; 
+  color: #9ca3af; 
   text-decoration: none; 
-  padding: 12px 0;
-  transition: 0.3s;
+  padding: 12px 15px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  margin-bottom: 5px;
 }
 
-.navbar__link:hover {
-  color: white;
-}
+.navbar__link:hover { color: white; background-color: #1f2937; }
+.router-link-active { color: white; background-color: #374151; font-weight: 600; }
 
-.item-sair {
-  margin-top: 40px;
-  padding-top: 20px;
-  
-}
+.item-sair { padding-top: 20px; border-top: 1px solid #1f2937; }
 
 .btn-sair {
-  background-color: red;
-  color:white;
-  border: 1px solid #ff4d4d;
-  padding: 8px 10px;
-  cursor: pointer;
-  border-radius: 4px;
-  width: 100px;
-  text-align: center;
-}
-
-.btn-sair:hover {
-  background: #ff4d4d;
-  color: white;
-}
-.conteudo {
-  width: 100%;
-}
-
-.header-tabela {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-}
-
-.btn-novo {
-  background: #1e1e2d;
+  background-color: #dc2626;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
+  padding: 12px;
   cursor: pointer;
-}
-
-.card-tabela {
-  background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  padding: 20px;
-}
-
-table {
   width: 100%;
-  border-collapse: collapse;
+  font-weight: 600;
 }
 
-th {
-  text-align: left;
-  color: #adb5bd;
-  font-size: 12px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #eee;
-}
+/* ÁREA DA DIREITA */
+.main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100%; }
 
-td {
-  padding: 15px 0;
-  border-bottom: 1px solid #f9f9f9;
-  font-size: 14px;
-}
-
-.btn-excluir {
-  background: #e74c3c;
+.top-navbar {
+  height: 64px;
+  background-color: #111827;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
   color: white;
-  border: none;
-  padding: 5px 12px;
-  border-radius: 4px;
-  cursor: pointer;
 }
+
+.input-search {
+  background: #374151;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 6px;
+  color: white;
+  width: 300px;
+}
+
+.user-profile { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.avatar { width: 24px; height: 24px; }
+
+.conteudo-scroll { flex: 1; overflow-y: auto; padding-bottom: 40px; }
 </style>
