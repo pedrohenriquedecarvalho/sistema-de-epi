@@ -14,6 +14,7 @@
           <li><RouterLink to="/estoque" class="navbar__link">Estoque</RouterLink></li>
           <li><RouterLink to="/relatorio" class="navbar__link">Relatório</RouterLink></li>
           <li><RouterLink to="/reserva" class="navbar__link">Reserva</RouterLink></li>
+          <li><RouterLink to="/entrega" class="navbar__link">Entrega</RouterLink></li>
         </ul>
         
         <div class="item-sair">
