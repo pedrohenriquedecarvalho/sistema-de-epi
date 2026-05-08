@@ -1,41 +1,69 @@
-<template> 
-  <div class="layout"> 
-    <!-- SIDEBAR FIXA ESQUERDA -->
-    <aside class="sidebar">
+<template>
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" :class="{ 'is-collapsed': isCollapsed }">
       <div class="sidebar__logo">
         <img src="../assets/image.png" class="icon" alt="Logo">
-        <h2>Controle EPI</h2>
+        <h2 v-if="!isCollapsed">Controle EPI</h2>
       </div>
 
       <nav aria-label="Menu principal" class="sidebar__nav">
         <ul class="navbar__lista">
-          <li><RouterLink to="/funcionarios" class="navbar__link">Funcionários</RouterLink></li>
-          <li><RouterLink to="/cadastro" class="navbar__link">Cadastro de EPI</RouterLink></li>
-          <li><RouterLink to="/estoque" class="navbar__link">Estoque</RouterLink></li>
-          <li><RouterLink to="/relatorio" class="navbar__link">Relatório</RouterLink></li>
-          <li><RouterLink to="/reserva" class="navbar__link">Reserva</RouterLink></li>
-          <li><RouterLink to="/entrega" class="navbar__link">Entrega</RouterLink></li>
+          <li>
+            <RouterLink to="/funcionarios" class="navbar__link">
+              <span v-if="!isCollapsed">Funcionários</span>
+            </RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/cadastro" class="navbar__link">
+              <span v-if="!isCollapsed">Cadastro de EPI</span>
+            </RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/estoque" class="navbar__link">
+              <span v-if="!isCollapsed">Estoque</span>
+            </RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/relatorio" class="navbar__link">
+              <span v-if="!isCollapsed">Relatório</span>
+            </RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/reserva" class="navbar__link">
+              <span v-if="!isCollapsed">Reserva</span>
+            </RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/entrega" class="navbar__link">
+              <span v-if="!isCollapsed">Entrega</span>
+            </RouterLink>
+          </li>
         </ul>
         
         <div class="item-sair">
-          <button @click="sair" class="btn-sair">Sair</button>
+          <button @click="sair" class="btn-sair">
+            <span v-if="!isCollapsed">Sair</span>
+            <span v-else>🚪</span> <!-- Mantive apenas um indicador aqui para não sumir o botão de logout -->
+          </button>
         </div>
       </nav>
     </aside> 
 
-    <!-- CONTEÚDO DA DIREITA (NAVBAR + PÁGINAS) -->
+    <!-- CONTEÚDO DA DIREITA -->
     <div class="main-wrapper">
-      <!-- NAVBAR SUPERIOR -->
-     <nav class="navbar">
-      <div class="nav-center">
-      </div>
-      <div class="nav-right">
-        <img src="../assets/conta.png" alt="User" class="conta">
-        <RouterLink to="/login" class="conta1">Acesse sua conta</RouterLink>
-      </div>
-    </nav>
+      <nav class="navbar">
+        <div class="nav-left">
+          <!-- Botão para alternar o menu -->
+          <button @click="toggleSidebar" class="btn-toggle">☰</button>
+        </div>
+        <div class="nav-center"></div>
+        <div class="nav-right">
+          <img src="../assets/conta.png" alt="User" class="conta">
+          <RouterLink to="/login" class="conta1">Acesse sua conta</RouterLink>
+        </div>
+      </nav>
 
-      <!-- CONTEÚDO DINÂMICO (PÁGINAS) -->
       <main class="conteudo-scroll">
         <RouterView />
       </main>
@@ -44,11 +72,18 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useSupabase } from '../composables/useSupabase'
 import { useRouter, RouterLink, RouterView } from 'vue-router'
 
 const { supabase } = useSupabase()
 const router = useRouter()
+
+// Lógica de recolhimento
+const isCollapsed = ref(false)
+const toggleSidebar = () => {
+  isCollapsed.value = !isCollapsed.value
+}
 
 async function sair() {
   try {
@@ -61,15 +96,8 @@ async function sair() {
 </script>
 
 <style scoped>
-
-
 * { margin: 0; padding: 0; box-sizing: border-box; }
-.navbar { background-color: #111827; color: white; display: flex; align-items: center; padding: 15px 50px; }
-.nav-center { flex: 1; display: flex; justify-content: center; }
-.nav-right { display: flex; align-items: center; gap: 10px; }
-.input { width: 400px; padding: 10px; border-radius: 6px; border: none; background-color: #374151; color: white; }
-.conta { width: 28px; }
-.conta1 { text-decoration: none; color: white; margin-left: 10px; font-size: 14px; }
+
 .layout { 
   display: flex;
   width: 100vw;
@@ -87,19 +115,26 @@ async function sair() {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  transition: width 0.3s ease; /* Transição suave ao encolher */
 } 
+
+/* Estado quando recolhido */
+.sidebar.is-collapsed {
+  width: 65px; /* Bem fino */
+  padding: 25px 10px;
+}
 
 .sidebar__logo {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 40px;
+  overflow: hidden;
 }
 
-.icon { height: 32px; width: 32px; }
+.icon { height: 32px; width: 32px; flex-shrink: 0; }
 
 .sidebar__nav { display: flex; flex-direction: column; flex: 1; }
-
 .navbar__lista { list-style: none; flex: 1; }
 
 .navbar__link {
@@ -110,6 +145,7 @@ async function sair() {
   border-radius: 8px;
   transition: all 0.2s;
   margin-bottom: 5px;
+  white-space: nowrap; /* Impede quebra de texto */
 }
 
 .navbar__link:hover { color: white; background-color: #1f2937; }
@@ -128,30 +164,31 @@ async function sair() {
   font-weight: 600;
 }
 
-/* ÁREA DA DIREITA */
-.main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100%; }
-
-.top-navbar {
+/* NAVBAR SUPERIOR */
+.navbar { 
+  background-color: #111827; 
+  color: white; 
+  display: flex; 
+  align-items: center; 
+  padding: 15px 30px; 
   height: 64px;
-  background-color: #111827;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 30px;
-  color: white;
 }
 
-.input-search {
-  background: #374151;
+.btn-toggle {
+  background: none;
   border: none;
-  padding: 8px 15px;
-  border-radius: 6px;
   color: white;
-  width: 300px;
+  font-size: 24px;
+  cursor: pointer;
+  margin-right: 15px;
 }
 
-.user-profile { display: flex; align-items: center; gap: 10px; font-size: 14px; }
-.avatar { width: 24px; height: 24px; }
+.nav-center { flex: 1; }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.conta { width: 28px; }
+.conta1 { text-decoration: none; color: white; font-size: 14px; }
 
-.conteudo-scroll { flex: 1; overflow-y: auto; padding-bottom: 40px; }
+/* CONTEÚDO */
+.main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100%; }
+.conteudo-scroll { flex: 1; overflow-y: auto; padding: 20px; }
 </style>
