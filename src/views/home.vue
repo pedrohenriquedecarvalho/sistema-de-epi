@@ -5,12 +5,12 @@
     <nav class="navbar">
 
       <div class="nav-center">
-        <input type="text" placeholder="Pesquisar..." class="input">
+        
       </div>
 
       <div class="nav-right">
         <img src="../assets/conta.png" alt="User" class="conta">
-        <RouterLink to="/login" class="conta1">Acesse sua conta</RouterLink>
+        <RouterLink to="/login" class="nav-center">Acesse sua conta</RouterLink>
       </div>
 
     </nav>
@@ -117,12 +117,7 @@ export default {
   padding: 15px 50px;
   text-decoration: none;
 }
-.conta1{
-  text-decoration: none;
-  color: white;
-  white-space: nowrap;
-  margin-left: 10px;
-}
+
 
 .nav-left,
 .nav-center,
@@ -135,6 +130,10 @@ export default {
 .nav-center {
   flex: 1;
   justify-content: center;
+  text-decoration: none;
+  color: white;
+  white-space: nowrap;
+  margin-left: 10px;
 }
 
 .logo {
