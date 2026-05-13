@@ -1,253 +1,231 @@
 <template>
   <div class="page">
+    <div class="layout-container">
+      <header class="header-section">
+        <h1>Painel de Controle de EPIs</h1>
+        <p>Gestão de inventário e rastreabilidade de entregas.</p>
+      </header>
 
-    <!-- RELATÓRIO -->
-    <section class="relatorio">
-      <div class="card">
+      <div v-if="loadingEstoque || loading" class="info-banner">Sincronizando dados com o servidor...</div>
 
-        <h1>Relatório de EPI's</h1>
-        <p class="subtitle">
-          Visualize os equipamentos cadastrados no sistema
-        </p>
-
-        <!-- FILTROS -->
-        <div class="filtros">
-
-          <div class="campo">
-            <label>Nome do EPI</label>
-            <input type="text" placeholder="Ex: Capacete">
+      <div class="dashboard-grid">
+        <!-- Gráfico 01: Pizza -->
+        <div class="card chart-card">
+          <div class="card-header"><h3>Saúde do Inventário</h3></div>
+          <div class="chart-box">
+            <Pie 
+              v-if="estoqueProcessado.length > 0" 
+              :data="pieChartData" 
+              :options="chartOptions" 
+              :key="'pie-' + componentKey"
+            />
+            <div v-else class="placeholder">Aguardando dados...</div>
           </div>
-
-          <div class="campo">
-            <label>Status</label>
-            <select>
-              <option>Todos</option>
-              <option>Estoque</option>
-              <option>Em uso</option>
-              <option>Vencido</option>
-            </select>
-          </div>
-
-          <div class="campo">
-            <label>Data Inicial</label>
-            <input type="date">
-          </div>
-
-          <div class="campo">
-            <label>Data Final</label>
-            <input type="date">
-          </div>
-
         </div>
 
-        <!-- TABELA -->
-        <table>
+        <!-- Gráfico 02: Barras -->
+        <div class="card chart-card">
+          <div class="card-header"><h3>Níveis Críticos</h3></div>
+          <div class="chart-box">
+            <Bar 
+              v-if="estoqueProcessado.length > 0" 
+              :data="barChartData" 
+              :options="chartOptions" 
+              :key="'bar-' + componentKey"
+            />
+            <div v-else class="placeholder">Analisando níveis...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card filter-card">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Funcionário</label>
+            <select v-model="filtros.funcionario_id">
+              <option value="">Todos os Colaboradores</option>
+              <option v-for="f in funcionarios" :key="f.id" :value="f.id">{{ f.nome }}</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Data Início</label><input type="date" v-model="filtros.data_inicio" /></div>
+          <div class="form-group"><label>Data Fim</label><input type="date" v-model="filtros.data_fim" /></div>
+        </div>
+        <div class="action-bar">
+          <button class="btn btn-primary" @click="buscarTudo" :disabled="loading">🔄 Atualizar Dados</button>
+          <button class="btn btn-pdf" @click="exportarPDF" :disabled="entregas.length === 0">📄 Gerar PDF</button>
+        </div>
+      </div>
+
+      <div class="card table-card">
+        <table class="styled-table">
           <thead>
             <tr>
-              <th>EPI</th>
-              <th>CA</th>
-              <th>Quantidade</th>
-              <th>Status</th>
               <th>Data</th>
+              <th>Funcionário</th>
+              <th>EPI Fornecido</th>
+              <th class="text-center">Qtd</th>
+              <th class="text-center">Status</th>
             </tr>
           </thead>
-
           <tbody>
-            <tr>
-              <td>Capacete</td>
-              <td>1234</td>
-              <td>10</td>
-              <td class="estoque">Estoque</td>
-              <td>01/04/2026</td>
-            </tr>
-
-            <tr>
-              <td>Luva</td>
-              <td>5678</td>
-              <td>5</td>
-              <td class="uso">Em uso</td>
-              <td>02/04/2026</td>
-            </tr>
-
-            <tr>
-              <td>Óculos</td>
-              <td>9999</td>
-              <td>2</td>
-              <td class="vencido">Vencido</td>
-              <td>03/04/2026</td>
+            <tr v-for="e in entregas" :key="e.id">
+              <td>{{ formatarData(e.data_entrega) }}</td>
+              <td><strong>{{ e.funcionarios?.nome || 'N/A' }}</strong></td>
+              <!-- Ajustado para ler cadastro_epi -->
+              <td>{{ e.cadastro_epi?.nome_epi || 'EPI não vinculado' }} (CA: {{ e.cadastro_epi?.ca || 'N/A' }})</td>
+              <td class="text-center">{{ e.quantidade_entregue }}</td>
+              <td class="text-center">
+                <span :class="e.assinatura_digital ? 'badge badge-ok' : 'badge badge-warn'">
+                  {{ e.assinatura_digital ? 'Assinado' : 'Pendente' }}
+                </span>
+              </td>
             </tr>
           </tbody>
         </table>
-
       </div>
-    </section>
-
+    </div>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'relatorio'
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useSupabase } from '../composables/useSupabase'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import { Pie, Bar } from 'vue-chartjs'
+import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale, LinearScale, BarElement } from 'chart.js'
+
+ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, LinearScale, BarElement)
+
+const { supabase } = useSupabase()
+const entregas = ref([])
+const funcionarios = ref([])
+const estoqueProcessado = ref([])
+const loading = ref(false)
+const loadingEstoque = ref(false)
+const componentKey = ref(0)
+const filtros = ref({ funcionario_id: '', data_inicio: '', data_fim: '' })
+
+const pieChartData = computed(() => {
+  const data = estoqueProcessado.value || []
+  return {
+    labels: ['OK', 'Baixo', 'Esgotado'],
+    datasets: [{
+      backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+      data: [
+        data.filter(i => i.quantidade >= 10).length,
+        data.filter(i => i.quantidade < 10 && i.quantidade > 0).length,
+        data.filter(i => i.quantidade <= 0).length
+      ]
+    }]
+  }
+})
+
+const barChartData = computed(() => {
+  const criticos = [...estoqueProcessado.value].sort((a, b) => a.quantidade - b.quantidade).slice(0, 5)
+  return {
+    labels: criticos.map(i => i.nome_epi),
+    datasets: [{ label: 'Estoque', backgroundColor: '#ef4444', data: criticos.map(i => i.quantidade) }]
+  }
+})
+
+const chartOptions = { responsive: true, maintainAspectRatio: false }
+
+async function carregarEstoqueEfetivo() {
+  loadingEstoque.value = true
+  try {
+    // TROCADO DE 'epis' PARA 'cadastro_epi'
+    const [resEstoque, resEpis] = await Promise.all([
+      supabase.from('estoque').select('*'),
+      supabase.from('cadastro_epi').select('id, nome_epi')
+    ])
+
+    if (resEstoque.error) throw resEstoque.error
+    if (resEpis.error) throw resEpis.error
+
+    const episMap = Object.fromEntries(resEpis.data.map(item => [item.id, item.nome_epi]))
+    
+    estoqueProcessado.value = (resEstoque.data || []).map(item => ({
+      ...item,
+      nome_epi: episMap[item.epi_id] || 'EPI Desconhecido'
+    }))
+    componentKey.value++
+  } catch (err) {
+    console.error("Erro estoque:", err.message)
+  } finally {
+    loadingEstoque.value = false
+  }
 }
+
+async function buscarEntregas() {
+  loading.value = true
+  try {
+    // TROCADO DE 'epis' PARA 'cadastro_epi'
+    let query = supabase
+      .from('entregas')
+      .select('*, funcionarios(nome), cadastro_epi(nome_epi, ca)')
+      .order('data_entrega', { ascending: false })
+    
+    if (filtros.value.funcionario_id) query = query.eq('funcionario_id', filtros.value.funcionario_id)
+    if (filtros.value.data_inicio) query = query.gte('data_entrega', filtros.value.data_inicio)
+    if (filtros.value.data_fim) query = query.lte('data_entrega', filtros.value.data_fim)
+    
+    const { data, error } = await query
+    if (error) throw error
+    entregas.value = data || []
+  } catch (err) {
+    console.error("Erro entregas:", err.message)
+  } finally {
+    loading.value = false
+  }
+}
+
+async function carregarFuncionarios() {
+  const { data } = await supabase.from('funcionarios').select('id, nome').order('nome')
+  funcionarios.value = data || []
+}
+
+function exportarPDF() {
+  const doc = new jsPDF()
+  doc.text('Relatório de Entregas', 14, 20)
+  autoTable(doc, {
+    startY: 30,
+    head: [['Data', 'Funcionário', 'EPI', 'Qtd', 'Status']],
+    body: entregas.value.map(e => [
+      formatarData(e.data_entrega),
+      e.funcionarios?.nome || 'N/A',
+      e.cadastro_epi?.nome_epi || 'N/A',
+      e.quantidade_entregue,
+      e.assinatura_digital ? 'Assinado' : 'Pendente'
+    ]),
+  })
+  doc.save('relatorio.pdf')
+}
+
+const buscarTudo = () => { carregarEstoqueEfetivo(); buscarEntregas(); }
+const formatarData = (d) => d ? new Date(d).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '—'
+
+onMounted(() => { carregarFuncionarios(); buscarTudo(); })
 </script>
 
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-.page {
-  font-family: 'Inter', sans-serif;
-  background-color: #d1d5db;
-  min-height: 100vh;
-}
-
-/* NAVBAR */
-.navbar {
-  background-color: #111827;
-  color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 50px;
-}
-
-.nav-left,
-.nav-center,
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.nav-center {
-  flex: 1;
-  justify-content: center;
-}
-
-.logo {
-  width: 40px;
-}
-
-.conta {
-  width: 28px;
-}
-
-.conta1 {
-  text-decoration: none;
-  color: white;
-  margin-left: 10px;
-}
-
-.input {
-  width: 400px;
-  padding: 10px;
-  border-radius: 6px;
-  border: none;
-  background-color: #374151;
-  color: white;
-}
-
-/* RELATÓRIO */
-.relatorio {
-  display: flex;
-  justify-content: center;
-  padding: 50px 20px;
-}
-
-/* CARD */
-.card {
-  background-color: white;
-  width: 100%;
-  max-width: 1000px;
-  border-radius: 12px;
-  padding: 40px;
-  box-shadow: 0 10px 15px rgba(0,0,0,0.1);
-}
-
-.card h1 {
-  text-align: center;
-  font-size: 28px;
-}
-
-.subtitle {
-  text-align: center;
-  color: #6b7280;
-  margin-bottom: 30px;
-}
-
-/* FILTROS */
-.filtros {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 15px;
-  margin-bottom: 25px;
-}
-
-.campo {
-  display: flex;
-  flex-direction: column;
-}
-
-.campo label {
-  font-weight: 600;
-  margin-bottom: 5px;
-}
-
-.campo input,
-.campo select {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-}
-
-/* TABELA */
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th {
-  background: #e5e7eb;
-}
-
-th, td {
-  padding: 12px;
-  border: 1px solid #ddd;
-  text-align: center;
-}
-
-/* STATUS */
-.estoque {
-  color: green;
-  font-weight: bold;
-}
-
-.uso {
-  color: orange;
-  font-weight: bold;
-}
-
-.vencido {
-  color: red;
-  font-weight: bold;
-}
-
-/* RESPONSIVO */
-@media (max-width: 768px) {
-  .filtros {
-    grid-template-columns: 1fr;
-  }
-
-  .navbar {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .input {
-    width: 100%;
-  }
-}
+<style scoped>
+.page { background-color: #f3f4f6; min-height: 100vh; padding: 20px; font-family: sans-serif; }
+.layout-container { max-width: 1100px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; }
+.header-section h1 { font-size: 24px; color: #111827; }
+.dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.chart-box { height: 220px; }
+.card { border: 1px solid #e5e7eb; padding: 20px; border-radius: 12px; }
+.form-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+.form-group { display: flex; flex-direction: column; font-weight: bold; }
+input, select { padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; }
+.btn { padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
+.btn-primary { background: #2563eb; color: white; }
+.btn-pdf { background: #10b981; color: white; }
+.styled-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+.styled-table th { background: #f9fafb; padding: 12px; text-align: left; }
+.styled-table td { padding: 12px; border-bottom: 1px solid #eee; }
+.badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; }
+.badge-ok { background: #dcfce7; color: #15803d; }
+.badge-warn { background: #fee2e2; color: #b91c1c; }
+.info-banner { background: #dbeafe; padding: 10px; text-align: center; margin-bottom: 20px; border-radius: 8px; }
 </style>

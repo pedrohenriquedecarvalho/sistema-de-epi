@@ -3,7 +3,6 @@ import home from '../views/home.vue'
 import login from '../views/login.vue'
 import cadastro from '../views/cadastro.vue'
 import relatorio from '../views/relatorio.vue'
-import reserva from '../views/reserva.vue'
 import estoque from '../views/estoque.vue'
 import dashboard from '../views/dashboard.vue'
 import funcionario from '../views/funcionarios.vue'
@@ -20,7 +19,6 @@ const routes = [
     children: [
 { path: '/cadastro', component: cadastro },
 { path: '/relatorio', component: relatorio },
-{ path: '/reserva', component: reserva },
 { path: '/estoque', component: estoque },
 { path: '/funcionarios', component: funcionario },
 { path: '/entrega', component: entrega },

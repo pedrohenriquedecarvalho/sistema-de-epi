@@ -30,11 +30,6 @@
             </RouterLink>
           </li>
           <li>
-            <RouterLink to="/reserva" class="navbar__link">
-              <span v-if="!isCollapsed">Reserva</span>
-            </RouterLink>
-          </li>
-          <li>
             <RouterLink to="/entrega" class="navbar__link">
               <span v-if="!isCollapsed">Entrega</span>
             </RouterLink>
