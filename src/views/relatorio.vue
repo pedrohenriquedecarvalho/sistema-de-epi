@@ -8,11 +8,11 @@
 
       <div v-if="loadingEstoque || loading" class="info-banner">Sincronizando dados com o servidor...</div>
 
-      <!-- Grid de Gráficos Responsivo -->
+      <!-- Grid de Gráficos -->
       <div class="dashboard-grid">
         <div class="card chart-card">
           <div class="card-header"><h3>Saúde do Inventário</h3></div>
-          <div class="chart-box">
+          <div class="chart-container">
             <Pie 
               v-if="estoqueProcessado.length > 0" 
               :data="pieChartData" 
@@ -25,7 +25,7 @@
 
         <div class="card chart-card">
           <div class="card-header"><h3>Níveis Críticos</h3></div>
-          <div class="chart-box">
+          <div class="chart-container">
             <Bar 
               v-if="estoqueProcessado.length > 0" 
               :data="barChartData" 
@@ -37,9 +37,9 @@
         </div>
       </div>
 
-      <!-- Filtros Responsivos -->
+      <!-- Filtros -->
       <div class="card filter-card">
-        <div class="form-row">
+        <div class="filter-grid">
           <div class="form-group">
             <label>Funcionário</label>
             <select v-model="filtros.funcionario_id">
@@ -57,12 +57,12 @@
           </div>
         </div>
         <div class="action-bar">
-          <button class="btn btn-primary" @click="buscarTudo" :disabled="loading">🔄 Atualizar Dados</button>
+          <button class="btn btn-primary" @click="buscarTudo" :disabled="loading">🔄 Atualizar</button>
           <button class="btn btn-pdf" @click="exportarPDF" :disabled="entregas.length === 0">📄 Gerar PDF</button>
         </div>
       </div>
 
-      <!-- Tabela Responsiva com Scroll Lateral -->
+      <!-- Tabela -->
       <div class="card table-card">
         <div class="table-responsive">
           <table class="styled-table">
@@ -70,7 +70,7 @@
               <tr>
                 <th>Data</th>
                 <th>Funcionário</th>
-                <th>EPI Fornecido</th>
+                <th>EPI</th>
                 <th class="text-center">Qtd</th>
                 <th class="text-center">Status</th>
               </tr>
@@ -83,7 +83,7 @@
                 <td class="text-center">{{ e.quantidade_entregue }}</td>
                 <td class="text-center">
                   <span :class="e.assinatura_digital ? 'badge badge-ok' : 'badge badge-warn'">
-                    {{ e.assinatura_digital ? 'Assinado' : 'Pendente' }}
+                    {{ e.assinatura_digital ? 'OK' : 'Pendente' }}
                   </span>
                 </td>
               </tr>
@@ -99,6 +99,7 @@
 </template>
 
 <script setup>
+/* ... Mantendo sua lógica de Script Setup original ... */
 import { ref, computed, onMounted } from 'vue'
 import { useSupabase } from '../composables/useSupabase'
 import jsPDF from 'jspdf'
@@ -213,131 +214,151 @@ onMounted(() => { carregarFuncionarios(); buscarTudo(); })
 </script>
 
 <style scoped>
-.page { 
-  background-color: #f3f4f6; 
-  min-height: 100vh; 
-  padding: clamp(10px, 3vw, 20px); 
-  font-family: sans-serif; 
+/* Reset e Base */
+.page {
+  background-color: #f3f4f6;
+  min-height: 100vh;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
-.layout-container { 
-  max-width: 1100px; 
-  margin: 0 auto; 
-  background: white; 
-  padding: clamp(15px, 4vw, 30px); 
-  border-radius: 16px; 
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+.layout-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.header-section { margin-bottom: 25px; }
-.header-section h1 { font-size: clamp(20px, 5vw, 24px); color: #111827; margin-bottom: 5px; }
-.header-section p { color: #6b7280; font-size: 14px; }
-
-.dashboard-grid { 
-  display: grid; 
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-  gap: 20px; 
-  margin-bottom: 30px; 
+/* Card General Style */
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid #e5e7eb;
 }
 
-.chart-box { height: 250px; position: relative; }
-.card { border: 1px solid #e5e7eb; padding: 20px; border-radius: 12px; background: #fff; }
-.card-header h3 { font-size: 16px; margin-bottom: 15px; color: #374151; }
+/* Header */
+.header-section h1 { font-size: 1.5rem; color: #111827; margin: 0; }
+.header-section p { color: #6b7280; margin: 5px 0 0 0; }
 
-/* Formulário Responsivo */
-.form-row { 
-  display: grid; 
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-  gap: 15px; 
-  margin-bottom: 20px; 
+/* Grid de Gráficos - Responsivo */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* 1 coluna no mobile */
+  gap: 15px;
 }
 
-.form-group { display: flex; flex-direction: column; font-weight: bold; font-size: 14px; color: #4b5563; }
-.form-group label { margin-bottom: 5px; }
+@media (min-width: 768px) {
+  .dashboard-grid { grid-template-columns: 1fr 1fr; } /* 2 colunas no tablet/desktop */
+}
 
-input, select { 
-  padding: 10px; 
-  border: 1px solid #d1d5db; 
-  border-radius: 8px; 
-  background: #f9fafb;
+.chart-container {
+  height: 250px;
+  position: relative;
+}
+
+/* Filtros */
+.filter-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+@media (min-width: 640px) {
+  .filter-grid { grid-template-columns: 2fr 1fr 1fr; }
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 5px;
+}
+
+input, select {
   width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 14px;
 }
 
-.action-bar { 
-  display: flex; 
-  gap: 10px; 
-  flex-wrap: wrap; /* Faz os botões quebrarem linha no mobile */
+/* Action Bar */
+.action-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.btn { 
-  padding: 12px 20px; 
-  border-radius: 8px; 
-  border: none; 
-  cursor: pointer; 
-  font-weight: bold; 
-  flex: 1; /* Botões crescem igualmente */
-  min-width: 150px;
-  transition: opacity 0.2s;
+@media (min-width: 640px) {
+  .action-bar { flex-direction: row; }
 }
 
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn {
+  padding: 12px;
+  border-radius: 6px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  flex: 1;
+}
+
 .btn-primary { background: #2563eb; color: white; }
 .btn-pdf { background: #10b981; color: white; }
 
 /* Tabela Responsiva */
-.table-responsive { 
-  width: 100%; 
-  overflow-x: auto; /* Scroll horizontal */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto; /* Scroll horizontal habilitado */
   -webkit-overflow-scrolling: touch;
-  margin-top: 10px;
 }
 
-.styled-table { 
-  width: 100%; 
-  border-collapse: collapse; 
-  min-width: 600px; /* Garante que a tabela não fique ilegível */
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px; /* Garante que a tabela não "esprema" no mobile */
 }
 
-.styled-table th { 
-  background: #f9fafb; 
-  padding: 12px; 
-  text-align: left; 
-  font-size: 13px; 
+.styled-table th {
+  background: #f9fafb;
+  padding: 12px;
+  text-align: left;
+  font-size: 0.8rem;
+  text-transform: uppercase;
   color: #6b7280;
   border-bottom: 2px solid #f3f4f6;
 }
 
-.styled-table td { 
-  padding: 14px 12px; 
-  border-bottom: 1px solid #f3f4f6; 
-  font-size: 14px;
+.styled-table td {
+  padding: 12px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.9rem;
 }
 
-.badge { 
-  padding: 4px 10px; 
-  border-radius: 20px; 
-  font-size: 12px; 
+/* Badges */
+.badge {
+  padding: 4px 8px;
+  border-radius: 99px;
+  font-size: 0.75rem;
   font-weight: 600;
-  display: inline-block;
 }
-
 .badge-ok { background: #dcfce7; color: #15803d; }
 .badge-warn { background: #fee2e2; color: #b91c1c; }
 
-.info-banner { 
-  background: #dbeafe; 
+/* Feedback */
+.info-banner {
+  background: #dbeafe;
   color: #1e40af;
-  padding: 10px; 
-  text-align: center; 
-  margin-bottom: 20px; 
-  border-radius: 8px; 
-  font-size: 14px;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  text-align: center;
 }
 
-/* Media Queries para ajustes finos */
-@media (max-width: 640px) {
-  .layout-container { padding: 15px; border-radius: 0; }
-  .action-bar .btn { width: 100%; flex: none; }
-  .dashboard-grid { grid-template-columns: 1fr; }
-}
+.text-center { text-align: center; }
 </style>
