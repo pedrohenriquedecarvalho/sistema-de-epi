@@ -71,8 +71,9 @@
           <li><RouterLink to="/cadastro" class="navbar__link">Cadastro</RouterLink></li>
           <li><RouterLink to="/estoque" class="navbar__link">Estoque</RouterLink></li>
           <li><RouterLink to="/login" class="navbar__link">Login</RouterLink></li>
-          <li><RouterLink to="/relatorios" class="navbar__link">Relatórios</RouterLink></li>
-          <li><RouterLink to="/reserva" class="navbar__link">Reserva</RouterLink></li>
+          <li><RouterLink to="/relatorio" class="navbar__link">Relatórios</RouterLink></li>
+          <li><RouterLink to="/relatorio" class="navbar__link">Relatórios</RouterLink></li>
+          <li><RouterLink to="/entrega" class="navbar__link">Entrega</RouterLink></li>
           
 </ul>
         </div>
