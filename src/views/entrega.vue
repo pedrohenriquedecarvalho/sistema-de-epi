@@ -11,6 +11,7 @@
       </div>
 
       <div class="main-form">
+        <!-- Grid responsiva: 2 colunas no desktop, 1 no mobile -->
         <div class="form-row">
           <div class="form-group">
             <label>Funcionário</label>
@@ -32,6 +33,7 @@
           </div>
         </div>
 
+        <!-- Grid responsiva: 3 colunas no desktop, 1 no mobile -->
         <div class="form-row cols-3">
           <div class="form-group">
             <label>Quantidade</label>
@@ -41,9 +43,11 @@
             <label>Data de Entrega</label>
             <input type="date" v-model="form.data_entrega" />
           </div>
-          <div class="form-group checkbox-group" style="display: flex; align-items: center; padding-top: 25px;">
-            <input type="checkbox" v-model="form.assinatura_digital" id="assinatura" />
-            <label for="assinatura" style="margin-left: 8px; margin-bottom: 0; cursor: pointer;">Assinatura digital confirmada</label>
+          <div class="form-group checkbox-group">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" v-model="form.assinatura_digital" id="assinatura" />
+              <label for="assinatura">Assinatura digital confirmada</label>
+            </div>
           </div>
         </div>
 
@@ -68,6 +72,7 @@
         <span class="badge badge-blue">{{ entregas.length }} registros</span>
       </div>
 
+      <!-- Wrapper para permitir scroll lateral na tabela em telas pequenas -->
       <div class="table-container">
         <table class="styled-table">
           <thead>
@@ -81,11 +86,11 @@
           </thead>
           <tbody>
             <tr v-for="e in entregas" :key="e.id">
-              <td>{{ e.funcionarios?.nome || 'N/A' }}</td>
-              <td>{{ e.cadastro_epi?.nome_epi || 'N/A' }}</td>
-              <td>{{ e.quantidade_entregue }}</td>
-              <td>{{ formatarData(e.data_entrega) }}</td>
-              <td>
+              <td data-label="Funcionário">{{ e.funcionarios?.nome || 'N/A' }}</td>
+              <td data-label="EPI">{{ e.cadastro_epi?.nome_epi || 'N/A' }}</td>
+              <td data-label="Qtd">{{ e.quantidade_entregue }}</td>
+              <td data-label="Data">{{ formatarData(e.data_entrega) }}</td>
+              <td data-label="Status">
                 <span :class="e.assinatura_digital ? 'badge badge-ok' : 'badge badge-warn'">
                   {{ e.assinatura_digital ? 'Confirmada' : 'Pendente' }}
                 </span>
@@ -102,6 +107,7 @@
 </template>
 
 <script setup>
+// ... (manteve-se o mesmo Script Setup que você enviou, sem alterações na lógica)
 import { ref, onMounted } from 'vue';
 import { useSupabase } from '../composables/useSupabase';
 const { supabase } = useSupabase();
@@ -115,7 +121,6 @@ const ok = ref(false);
 
 const hoje = new Date().toISOString().slice(0, 10);
 
-// Nomes das chaves ajustados para as colunas do seu banco
 const form = ref({ 
   funcionarios_id: '', 
   cadastro_epi_id: '', 
@@ -135,7 +140,6 @@ async function carregar() {
     funcionarios.value = resFunc.data || [];
     epis.value = resEpi.data || [];
 
-    // Busca o histórico relacionando as tabelas para mostrar nomes em vez de IDs
     const { data: entData } = await supabase
       .from('entregas')
       .select(`
@@ -155,18 +159,15 @@ async function carregar() {
 
 async function registrar() {
   erro.value = ''; ok.value = false; loading.value = true;
-  
   try {
     const epi = epis.value.find(e => e.id === form.value.cadastro_epi_id);
     const qtdPedida = Number(form.value.quantidade_entregue);
     const saldoAtual = Number(epi?.quantidade || 0);
 
-    // Validação básica de estoque
     if (qtdPedida > saldoAtual) {
       throw new Error(`Estoque insuficiente! Saldo disponível: ${saldoAtual}`);
     }
 
-    // Inserção com nomes de colunas confirmados via esquema
     const { error: insError } = await supabase.from('entregas').insert([{
       funcionarios_id: form.value.funcionarios_id,
       cadastro_epi_id: form.value.cadastro_epi_id,
@@ -177,14 +178,11 @@ async function registrar() {
 
     if (insError) throw insError;
 
-    // Atualização do saldo na tabela de cadastro
     await supabase.from('cadastro_epi')
       .update({ quantidade: saldoAtual - qtdPedida })
       .eq('id', epi.id);
 
     ok.value = true;
-    
-    // Limpa o formulário
     form.value = { 
       funcionarios_id: '', 
       cadastro_epi_id: '', 
@@ -192,12 +190,9 @@ async function registrar() {
       data_entrega: hoje, 
       assinatura_digital: false 
     };
-    
-    await carregar(); // Recarrega a lista e os saldos atualizados
-
+    await carregar();
   } catch (e) {
     erro.value = e.message;
-    console.error("Erro no registro:", e);
   } finally {
     loading.value = false;
   }
@@ -213,24 +208,136 @@ onMounted(carregar);
 </script>
 
 <style scoped>
-.layout-container { width: 100%; padding: 20px 30px; background-color: #f8fafc; min-height: 100vh; font-family: sans-serif; }
-.card-form, .card-table { background: white; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 24px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-.card-header h2 { margin-top: 0; color: #0f172a; font-size: 1.25rem; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+/* Base */
+.layout-container { 
+  width: 100%; 
+  padding: 20px; 
+  background-color: #f8fafc; 
+  min-height: 100vh; 
+  font-family: sans-serif; 
+  box-sizing: border-box;
+}
+
+.header-section { margin-bottom: 20px; }
+.header-section h1 { font-size: 1.5rem; color: #0f172a; margin-bottom: 5px; }
+
+/* Cards */
+.card-form, .card-table { 
+  background: white; 
+  border: 1px solid #e2e8f0; 
+  border-radius: 12px; 
+  margin-bottom: 24px; 
+  padding: clamp(15px, 5vw, 25px); 
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+}
+
+.card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.card-header h2 { margin: 0; color: #0f172a; font-size: 1.1rem; }
+
+/* Form Layout Responsivo */
+.form-row { 
+  display: grid; 
+  grid-template-columns: 1fr; /* Padrão mobile: 1 coluna */
+  gap: 16px; 
+  margin-bottom: 16px; 
+}
+
 .form-group { display: flex; flex-direction: column; }
-.form-group label { font-weight: 600; color: #475569; margin-bottom: 4px; font-size: 0.9rem; }
-.custom-select, input { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; }
-.btn-primary { background: #1e293b; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
-.btn-primary:hover:not(:disabled) { background: #334155; }
-.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-.error-msg { color: #dc2626; font-weight: bold; margin-top: 15px; font-size: 0.9rem; }
-.success-msg { color: #16a34a; font-weight: bold; margin-top: 15px; font-size: 0.9rem; }
-.styled-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-.styled-table th { background: #f1f5f9; text-align: left; padding: 12px; color: #64748b; font-size: 0.85rem; text-transform: uppercase; }
-.styled-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.95rem; }
-.badge { padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; }
+.form-group label { font-weight: 600; color: #475569; margin-bottom: 6px; font-size: 0.85rem; }
+
+.custom-select, input { 
+  padding: 12px; 
+  border: 1px solid #cbd5e1; 
+  border-radius: 8px; 
+  font-size: 1rem; 
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ajuste específico para o checkbox no mobile e desktop */
+.checkbox-group { justify-content: center; }
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  cursor: pointer;
+}
+.checkbox-wrapper input { width: auto; cursor: pointer; }
+.checkbox-wrapper label { margin: 0; cursor: pointer; }
+
+/* Ações */
+.action-bar { margin-top: 10px; }
+.btn-primary { 
+  width: 100%; /* Botão largo no mobile */
+  background: #1e293b; 
+  color: white; 
+  border: none; 
+  padding: 14px; 
+  border-radius: 8px; 
+  cursor: pointer; 
+  font-weight: bold; 
+  font-size: 1rem;
+}
+
+/* Tabela Responsiva */
+.table-container { 
+  width: 100%; 
+  overflow-x: auto; /* Scroll lateral para tabelas longas */
+  -webkit-overflow-scrolling: touch;
+}
+
+.styled-table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  min-width: 600px; /* Garante que os dados não fiquem espremidos */
+}
+
+.styled-table th { 
+  background: #f1f5f9; 
+  text-align: left; 
+  padding: 12px; 
+  color: #64748b; 
+  font-size: 0.75rem; 
+  text-transform: uppercase; 
+  letter-spacing: 0.05em;
+}
+
+.styled-table td { 
+  padding: 14px 12px; 
+  border-bottom: 1px solid #f1f5f9; 
+  color: #334155; 
+  font-size: 0.9rem; 
+}
+
+/* Badges */
+.badge { padding: 4px 12px; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; white-space: nowrap; }
 .badge-blue { background: #e0f2fe; color: #0369a1; }
 .badge-ok { background: #dcfce7; color: #166534; }
 .badge-warn { background: #fef9c3; color: #854d0e; }
+
+.flex-between { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+
+/* MEDIA QUERIES - Ajustes para Desktop */
+@media (min-width: 768px) {
+  .layout-container { padding: 30px 40px; }
+  
+  .form-row { grid-template-columns: 1fr 1fr; }
+  .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  
+  .btn-primary { width: auto; min-width: 200px; }
+  
+  .checkbox-group { padding-top: 25px; align-items: flex-start; }
+}
+
+/* Mensagens de feedback */
+.error-msg, .success-msg { 
+  margin-top: 15px; 
+  padding: 10px; 
+  border-radius: 6px; 
+  font-size: 0.85rem; 
+  text-align: center;
+}
+.error-msg { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
+.success-msg { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
 </style>
