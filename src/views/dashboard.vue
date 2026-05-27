@@ -4,7 +4,7 @@
     <aside class="sidebar" :class="{ 'is-collapsed': isCollapsed }">
       <div class="sidebar__logo">
         <img src="../assets/image.png" class="icon" alt="Logo">
-        <h2 v-if="!isCollapsed">Controle EPI</h2>
+        <h2 v-if="!isCollapsed">Sistema de EPI</h2>
       </div>
 
       <nav aria-label="Menu principal" class="sidebar__nav">
