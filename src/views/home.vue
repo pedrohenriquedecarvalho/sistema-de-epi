@@ -60,10 +60,29 @@
       <div class="footer-content">
         
         <div class="footer-brand">
+          <img src="../assets/image.png" alt="Logo" class="footer-logo">
+          <p>&copy; 2026 Controle de EPIs.</p>
+        </div>
+        
+        <div class="links">
+          <h3>Navegação</h3>
+         <ul >
+          <li><RouterLink to="/" class="navbar__link">Home</RouterLink></li>
+          <li><RouterLink to="/cadastro" class="navbar__link">Cadastro</RouterLink></li>
+          <li><RouterLink to="/estoque" class="navbar__link">Estoque</RouterLink></li>
+          <li><RouterLink to="/login" class="navbar__link">Login</RouterLink></li>
+          <li><RouterLink to="/relatorio" class="navbar__link">Relatórios</RouterLink></li>
+          <li><RouterLink to="/relatorio" class="navbar__link">Relatórios</RouterLink></li>
+          <li><RouterLink to="/entrega" class="navbar__link">Entrega</RouterLink></li>
           
-          <p>&copy; Sistema de EPIs.</p>
+</ul>
         </div>
 
+        <div class="contato">
+          <h3>Suporte</h3>
+          <p>suporte@gestaoepi.com.br</p>
+          <p>(11) 4002-8922</p>
+        </div>
 
       </div>
     </footer>
@@ -194,21 +213,38 @@ export default {
 footer {
   background-color: #111827;
   color: #9ca3af;
- 
+  padding: 60px 50px 30px;
   margin-top: 80px;
 }
 
 .footer-content {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   gap: 40px;
 }
 
 .footer-logo {
-  height: 20px;
- 
+  height: 40px;
 }
 
+.links h3,
+.contato h3 {
+  color: white;
+  margin-bottom: 15px;
+}
+
+.links ul {
+  list-style: none;
+}
+
+.links a {
+  color: #9ca3af;
+  text-decoration: none;
+}
+
+.links a:hover {
+  color: white;
+}
 
 /* RESPONSIVO */
 @media (max-width: 768px) {
