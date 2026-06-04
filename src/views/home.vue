@@ -64,19 +64,6 @@
           <p>&copy; 2026 Controle de EPIs.</p>
         </div>
         
-        <div class="links">
-          <h3>Navegação</h3>
-         <ul >
-          <li><RouterLink to="/" class="navbar__link">Home</RouterLink></li>
-          <li><RouterLink to="/cadastro" class="navbar__link">Cadastro</RouterLink></li>
-          <li><RouterLink to="/estoque" class="navbar__link">Estoque</RouterLink></li>
-          <li><RouterLink to="/login" class="navbar__link">Login</RouterLink></li>
-          <li><RouterLink to="/relatorio" class="navbar__link">Relatórios</RouterLink></li>
-          <li><RouterLink to="/relatorio" class="navbar__link">Relatórios</RouterLink></li>
-          <li><RouterLink to="/entrega" class="navbar__link">Entrega</RouterLink></li>
-          
-</ul>
-        </div>
 
         <div class="contato">
           <h3>Suporte</h3>
