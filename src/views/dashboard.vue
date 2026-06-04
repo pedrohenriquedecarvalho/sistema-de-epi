@@ -10,6 +10,12 @@
       <nav aria-label="Menu principal" class="sidebar__nav">
         <ul class="navbar__lista">
           <li>
+            <RouterLink to="/estoque" class="navbar__link" title="Estoque">
+              <span v-if="!isCollapsed">Estoque</span>
+              <span v-else>📦</span>
+            </RouterLink>
+          </li>
+          <li>
             <RouterLink to="/funcionarios" class="navbar__link" title="Funcionários">
               <span v-if="!isCollapsed">Funcionários</span>
               <span v-else>👥</span> <!-- Ícone visual para quando estiver fechado -->
@@ -22,25 +28,18 @@
             </RouterLink>
           </li>
           <li>
-            <RouterLink to="/estoque" class="navbar__link" title="Estoque">
-              <span v-if="!isCollapsed">Estoque</span>
-              <span v-else>📦</span>
-            </RouterLink>
-          </li>
-          <li>
-            <RouterLink to="/relatorio" class="navbar__link" title="Relatório">
-              <span v-if="!isCollapsed">Relatório</span>
-              <span v-else>📊</span>
-            </RouterLink>
-          </li>
-          <li>
             <RouterLink to="/entrega" class="navbar__link" title="Entrega">
               <span v-if="!isCollapsed">Entrega</span>
               <span v-else>🚚</span>
             </RouterLink>
           </li>
+           <li>
+            <RouterLink to="/relatorio" class="navbar__link" title="Relatório">
+              <span v-if="!isCollapsed">Relatório</span>
+              <span v-else>📊</span>
+            </RouterLink>
+          </li>
         </ul>
-        
         <div class="item-sair">
           <button @click="sair" class="btn-sair" title="Sair">
             <span v-if="!isCollapsed">Sair</span>
